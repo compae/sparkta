@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.plugin.output.avro
+package com.stratio.sparta.plugin.output.csv
 
 import java.sql.Timestamp
 import java.time.Instant
@@ -32,7 +32,7 @@ import scala.util.Random
 
 
 @RunWith(classOf[JUnitRunner])
-class AvroOutputIT extends TemporalSparkContext with Matchers {
+class CsvOutputIT extends TemporalSparkContext with Matchers {
 
   trait CommonValues {
     val tmpPath: String = File.makeTemp().name
@@ -53,21 +53,21 @@ class AvroOutputIT extends TemporalSparkContext with Matchers {
 
   trait WithEventData extends CommonValues {
     val properties = Map("path" -> tmpPath)
-    val output = new AvroOutput("avro-test", properties)
+    val output = new CsvOutput("csv-test", properties)
   }
 
 
-  "AvroOutput" should "throw an exception when path is not present" in {
-    an[Exception] should be thrownBy new AvroOutput("avro-test", Map.empty)
+  "CsvOutput" should "throw an exception when path is not present" in {
+    an[Exception] should be thrownBy new CsvOutput("csv-test", Map.empty)
   }
 
   it should "throw an exception when empty path " in {
-    an[Exception] should be thrownBy new AvroOutput("avro-test", Map("path" -> "    "))
+    an[Exception] should be thrownBy new CsvOutput("csv-test", Map("path" -> "    "))
   }
 
   it should "save a dataframe " in new WithEventData {
     output.save(data, SaveModeEnum.Append, Map(Output.TableNameKey -> "person"))
-    val read = sparkSession.read.avro(s"$tmpPath/person")
+    val read = sparkSession.read.csv(s"$tmpPath/person.csv")
     read.count should be(3)
     read should be eq data
     File(tmpPath).deleteRecursively
